@@ -7,6 +7,7 @@ use App\Actions\Action;
 use App\Exceptions\HostActionException;
 use App\Models\Device;
 use App\Models\DeviceAllow;
+use App\Models\HostAllow;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -106,7 +107,12 @@ class HostAction extends Action
         // );
 
         // 之后，删除本地数据库中的数据
+
+        HostAllow::where('host_id', $host->host_id)->delete();
+        HostAllow::where('allow_host_id', $host->host_id)->delete();
+
         $host->delete();
+
 
         // $this->updateTask(
         //     $task,

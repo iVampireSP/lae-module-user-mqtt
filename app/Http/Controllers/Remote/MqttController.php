@@ -49,7 +49,7 @@ class MqttController extends Controller
         } else {
             // 不属于同一主机，检测是否在 HostAllow 中
 
-            $allow = HostAllow::where('host_id', $host->host_id)->where('allow_host_id', $next_host_id)->exists();
+            $allow = HostAllow::where('host_id', $next_host_id)->where('allow_host_id', $host->host_id)->exists();
 
             if (!$allow) {
                 return $this->error('主机不允许访问');
