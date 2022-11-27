@@ -53,15 +53,47 @@ class MqttController extends Controller
             return $this->failed('设备不存在', 404);
         }
 
-        $device_allow = DeviceAllow::where('device_id', $device->id)
-            ->where('topic', $topic)
+        $device_allows = DeviceAllow::where('device_id', $device->id)
             ->where('type', $type)
-            ->firstOrFail();
+            ->get();
 
-        if ($device_allow->action == 'allow') {
-            return $this->success();
-        } else {
-            return $this->forbidden('禁止访问', 403);
+        // Log::debug("message", [
+        //     'device_allows' => $device_allows,
+        //     'topic' => $topic,
+        // ]);
+
+        foreach ($device_allows as $device_allow) {
+
+            // 先精确匹配
+            if ($device_allow->topic == $topic) {
+                // Log::info('精确匹配', [
+                //     'topic' => $topic,
+                //     'device_allow' => $device_allow->toArray(),
+                // ]);
+                if ($device_allow->action == 'deny') {
+                    return $this->forbidden('禁止订阅', 403);
+                }
+            }
+
+            // 将 topic 转换成适合模糊搜索的格式
+            $topic = str_replace('#', '%', $topic);
+            $topic = str_replace('+', '_', $topic);
+
+            // 将 #,%,+ 转换成 *
+            $allow_topic = str_replace('%', '*', $device_allow->topic);
+            $allow_topic = str_replace('_', '*', $allow_topic);
+            $allow_topic = str_replace('#', '*', $allow_topic);
+
+            // Log::debug('$device_allow->topic', [$allow_topic]);
+
+            if (fnmatch($allow_topic, $topic)) {
+                return $this->success([
+                    'result' => true,
+                ]);
+            }
         }
+
+
+        return $this->forbidden('禁止访问', 403);
     }
 }

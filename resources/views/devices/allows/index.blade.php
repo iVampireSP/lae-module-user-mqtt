@@ -2,7 +2,7 @@
 
 <x-app-layout>
     <h3>授权</h3>
-    <p>允许或拒绝此设备的订阅或者发布行为。</p>
+    <p>允许或拒绝此设备的订阅或者发布行为。将会按照顺序进行判断。</p>
     <a href="{{ route('devices.edit', $device) }}">编辑设备</a>
 
     <div class="overflow-auto mt-3">

@@ -90,18 +90,17 @@ class DeviceController extends Controller
     public function update(Request $request, Device $device)
     {
         $request->validate([
-            'name' => 'required|unique:devices,name,' . $device->name,
             'password' => 'required|min:8|max:32',
             'client_id' => 'nullable',
         ]);
 
-        // $request->validate([
-        //     // 'name' => 'required|unique:devices',
-        //     // name
 
-        //     'password' => 'required|min:8|max:32',
-        //     'client_id' => 'nullable',
-        // ]);
+        // 检测 name 重复
+        if ($request->name != $device->name) {
+            $request->validate([
+                'name' => 'required|unique:devices',
+            ]);
+        }
 
         $device->update($request->all());
 
