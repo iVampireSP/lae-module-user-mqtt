@@ -32,6 +32,8 @@ return new class extends Migration
 
             $table->double('managed_price', 60, 8)->index()->nullable();
 
+            $table->string('password');
+
             // config
             $table->json('configuration')->nullable();
 

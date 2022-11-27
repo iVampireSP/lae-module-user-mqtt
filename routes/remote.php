@@ -37,6 +37,10 @@ Route::post('mqtt/authorization', [MqttController::class, 'authorization'])->nam
 // 当前模块的函数。服务器启停，创建，销毁，都需要进过这里。
 Route::group(['prefix' => '/functions', 'as' => 'functions.'], function () {
     Route::apiResource('hosts', Functions\HostController::class);
+
+    Route::get('hosts/{host}/allows', [Functions\HostController::class, 'allows']);
+    Route::post('hosts/{host}/allows', [Functions\HostController::class, 'addAllow']);
+    Route::delete('hosts/{host}/allows/{allow}', [Functions\HostController::class, 'deleteAllow']);
 });
 
 // 导出函数。用于给其它集成模块调用。做到模块之间相互交换信息或控制。

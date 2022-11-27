@@ -13,14 +13,15 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('devices', function (Blueprint $table) {
+        Schema::create('host_allows', function (Blueprint $table) {
             $table->id();
 
-            $table->string('name')->index()->unique();
+            // host_id
+            $table->unsignedBigInteger('host_id')->index();
 
-            $table->string('password')->nullable();
+            // 授权给另一个 host
+            $table->unsignedBigInteger('allow_host_id')->index();
 
-            $table->string('client_id')->nullable()->index();
 
             $table->timestamps();
         });
@@ -33,6 +34,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('devices');
+        Schema::dropIfExists('host_allows');
     }
 };

@@ -5,14 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class DeviceAllow extends Model
+class HostAllow extends Model
 {
     use HasFactory;
 
     public $fillable = [
-        'device_id',
-        'type',
-        'topic',
-        'action',
+        'host_id',
+        'allow_host_id'
     ];
 }

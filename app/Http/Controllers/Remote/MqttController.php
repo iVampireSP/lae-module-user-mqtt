@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Remote;
 
+use App\Models\Host;
 use App\Models\Device;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
+use App\Models\HostAllow;
 use App\Models\DeviceAllow;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
 
 class MqttController extends Controller
 {
@@ -14,86 +16,46 @@ class MqttController extends Controller
 
     public function authentication(Request $request)
     {
-        $client_id = $request->input('client_id');
-        $device_id = $request->input('device_id');
+        $host_id = $request->input('device_id');
         $password = $request->input('password');
 
-        $device = Device::where('name', $device_id)->first();
+        $host = Host::where('host_id', $host_id)->firstOrFail();
 
-        if (!$device) {
-            return $this->notFound('No device found');
+        if ($host->password !== $password) {
+            return $this->error('密码错误');
         }
 
-        if ($device->client_id) {
-            if ($device->client_id != $client_id) {
-                return $this->failed('客户端 ID 不匹配', 403);
-            }
-        }
-
-        if ($device->password == $password) {
-            return $this->success([
-                'result' => true,
-            ]);
-        }
-
-        return $this->failed('用户名或密码错误', 401);
+        return $this->success($host);
     }
 
     public function authorization(Request $request)
     {
-        $device_id = $request->input('device_id');
+        $host_id = $request->input('device_id');
 
         $topic = $request->input('topic');
 
-        $type = $request->input('type');
+        $topics = explode('/', $topic);
 
-        $device = Device::where('name', $device_id)->first();
-
-        if (!$device) {
-            return $this->failed('设备不存在', 404);
+        if (count($topics) === 1) {
+            return $this->error('主题错误');
         }
 
-        $device_allows = DeviceAllow::where('device_id', $device->id)
-            ->where('type', $type)
-            ->get();
+        $next_host_id = $topics[1];
 
-        // Log::debug("message", [
-        //     'device_allows' => $device_allows,
-        //     'topic' => $topic,
-        // ]);
+        $host = Host::where('host_id', $host_id)->firstOrFail();
 
-        foreach ($device_allows as $device_allow) {
+        if ($next_host_id == $host->host_id) {
+            return $this->success($host);
+        } else {
+            // 不属于同一主机，检测是否在 HostAllow 中
 
-            // 先精确匹配
-            if ($device_allow->topic == $topic) {
-                // Log::info('精确匹配', [
-                //     'topic' => $topic,
-                //     'device_allow' => $device_allow->toArray(),
-                // ]);
-                if ($device_allow->action == 'deny') {
-                    return $this->forbidden('禁止订阅', 403);
-                }
-            }
+            $allow = HostAllow::where('host_id', $host->host_id)->where('allow_host_id', $next_host_id)->exists();
 
-            // 将 topic 转换成适合模糊搜索的格式
-            $topic = str_replace('#', '%', $topic);
-            $topic = str_replace('+', '_', $topic);
-
-            // 将 #,%,+ 转换成 *
-            $allow_topic = str_replace('%', '*', $device_allow->topic);
-            $allow_topic = str_replace('_', '*', $allow_topic);
-            $allow_topic = str_replace('#', '*', $allow_topic);
-
-            // Log::debug('$device_allow->topic', [$allow_topic]);
-
-            if (fnmatch($allow_topic, $topic)) {
-                return $this->success([
-                    'result' => true,
-                ]);
+            if (!$allow) {
+                return $this->error('主机不允许访问');
+            } else {
+                return $this->success();
             }
         }
-
-
-        return $this->forbidden('禁止访问', 403);
     }
 }

@@ -5,6 +5,8 @@ namespace App\Actions;
 use App\Models\Host;
 use App\Actions\Action;
 use App\Exceptions\HostActionException;
+use App\Models\Device;
+use App\Models\DeviceAllow;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -22,18 +24,26 @@ class HostAction extends Action
     public function create(array $requests)
     {
         // 价格预留 0.01 可以用来验证用户是否有足够的余额。
-        $host = $this->createCloudHost(0.01, $requests);
+        $host = $this->createCloudHost(0, [
+            'name' => 'MQTT 服务',
+            'password' => $requests['password'],
+        ]);
 
         /* 这里开始，是创建服务器的逻辑 */
 
+        // 很显然我们不需要。
+
+        /* 这里结束，是创建服务器的逻辑 */
+
+
         // 这里需要根据你的业务来写，比如创建数据库，虚拟机，用户等等。
 
-        $task = $this->createTask($host, '创建主机', 'processing');
+        // $task = $this->createTask($host, '创建主机', 'processing');
 
-        $this->updateTask($task, '正在寻找服务器。');
-        $this->updateTask($task, '正在寻找服务器。');
-        $this->updateTask($task, '已找到服务器。');
-        $this->updateTask($task, '正在创建服务器...');
+        // $this->updateTask($task, '正在寻找服务器。');
+        // $this->updateTask($task, '正在寻找服务器。');
+        // $this->updateTask($task, '已找到服务器。');
+        // $this->updateTask($task, '正在创建服务器...');
 
         // 或者，你可以将它推送到队列中，让它在后台执行。
 
@@ -42,7 +52,7 @@ class HostAction extends Action
         /* 你可能还需要计算价格，或者将它放置到 Host 中，当 create 或者 update 时，触发价格更新 */
         // 这里，我们手动指定价格
 
-        $host->price = 100;
+        $host->price = 0;
 
         // 这一步非常重要，在创建成功后，你必须将它设置为 running。
         $host->status = 'running';
@@ -51,7 +61,7 @@ class HostAction extends Action
         // 就这么简单，你已经创建了一个主机。
 
         // 最后，我们标记一下任务完成。
-        $this->updateTask($task, '服务器创建成功。', 'success');
+        // $this->updateTask($task, '服务器创建成功。', 'success');
 
 
         return $host;
@@ -59,17 +69,19 @@ class HostAction extends Action
 
     public function update(Host $host, array $requests)
     {
-        // 更新主机也非常简单。
-        $task = $this->createTask($host, '正在应用更改', 'processing');
+        // // 更新主机也非常简单。
+        // $task = $this->createTask($host, '正在应用更改', 'processing');
 
         // 这里需要根据你的业务来写，比如更新数据库，虚拟机，用户等等。
 
-        $host->update($requests);
+        $host->update([
+            'password' => $requests['password'],
+        ]);
 
         /* 结束更新服务器的逻辑 */
 
         // 最后，我们标记一下任务完成。
-        $this->updateTask($task, '更改已应用。', 'success');
+        // $this->updateTask($task, '更改已应用。', 'success');
 
         return $host;
     }
@@ -83,24 +95,24 @@ class HostAction extends Action
 
         // 之后，我们就可以删除主机了。
 
-        $task = $this->createTask($host, '正在删除主机...');
+        // $task = $this->createTask($host, '正在删除主机...');
 
         // 下面，是删除主机的逻辑，比如删除数据库，虚拟机，用户等等。
-        $this->updateTask($task, '正在关闭您的客户端连接...');
+        // $this->updateTask($task, '正在关闭您的客户端连接...');
 
-        $this->updateTask(
-            $task,
-            '从我们的数据库中删除...'
-        );
+        // $this->updateTask(
+        //     $task,
+        //     '从我们的数据库中删除...'
+        // );
 
         // 之后，删除本地数据库中的数据
         $host->delete();
 
-        $this->updateTask(
-            $task,
-            '已删除。',
-            'done'
-        );
+        // $this->updateTask(
+        //     $task,
+        //     '已删除。',
+        //     'done'
+        // );
 
         // 告诉云端，此主机已被删除。
         $this->deleteCloudHost($host);
@@ -114,7 +126,7 @@ class HostAction extends Action
      */
     public function running(Host $host)
     {
-        Log::info('正在开机...');
+        // Log::info('正在开机...');
         // 启动此主机，比如启动虚拟机，启动数据库等等。
     }
 

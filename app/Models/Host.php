@@ -24,6 +24,7 @@ class Host extends Model
         'price',
         'managed_price',
         'status',
+        'password'
     ];
 
     protected $casts = [

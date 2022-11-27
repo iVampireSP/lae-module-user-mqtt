@@ -51,9 +51,6 @@
                                 <a class="nav-link text-auto" href="{{ route('work-orders.index') }}">工单</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-auto" href="{{ route('devices.index') }}">物联设备</a>
-                            </li>
-                            <li class="nav-item">
                                 <a class="nav-link text-auto" href="{{ route('admins.index') }}">管理员</a>
                             </li>
                         </ul>
