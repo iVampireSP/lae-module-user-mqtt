@@ -37,7 +37,7 @@ class Action
             Log::error($task_json);
             return false;
         } else {
-            return $task_json['data']['id'] ?? false;
+            return $task_json['id'] ?? false;
         }
     }
 
@@ -88,7 +88,7 @@ class Action
             throw new HostActionException($resp_json['message'] ?? '创建云主机失败');
         } else {
 
-            $host_id = $resp_json['data']['id'];
+            $host_id = $resp_json['id'];
             $data['host_id'] = $host_id;
 
             $host = Host::create($data);
