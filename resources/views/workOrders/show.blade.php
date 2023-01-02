@@ -21,16 +21,15 @@
 
         @foreach ($work_order->replies as $reply)
             <div class="card border-light mb-3 shadow">
-
                 <div class="card-header d-flex w-100 justify-content-between">
                     @if ($reply->role === 'user')
                         @if ($reply->user_id)
                             <a href="{{ route('users.show', $reply->user) }}">{{ $work_order->user->name }}</a>
                         @else
-                            {{ $reply->name }}
+                            <span>{{ $reply->name }}</span>
                         @endif
                     @elseif ($reply->role === 'admin')
-                        <span class="text-primary">{{ config('app.display_name') }}</span>
+                        <span class="text-primary"> 莱云 </span>
                     @elseif ($reply->role === 'module')
                         模块: {{ $reply->name }}
                     @elseif ($reply->role === 'guest')

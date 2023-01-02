@@ -2,14 +2,13 @@
 
 namespace App\Models\WorkOrder;
 
-use App\Models\Client;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Reply extends Model
 {
-    use HasFactory;
+    public $incrementing = false;
 
     protected $table = 'work_order_replies';
 
@@ -21,11 +20,21 @@ class Reply extends Model
         'is_pending',
         'created_at',
         'updated_at',
+        'role'
     ];
 
-    public $incrementing = false;
     // public $timestamps = false;
 
+    protected static function boot()
+    {
+        parent::boot();
+        static::creating(function ($model) {
+            // if id exists
+            if ($model->where('id', $model->id)->exists()) {
+                return false;
+            }
+        });
+    }
 
     public function workOrder()
     {
@@ -40,18 +49,5 @@ class Reply extends Model
     public function scopeWorkOrderId($query, $work_order_id)
     {
         return $query->where('work_order_id', $work_order_id);
-    }
-
-
-    // on createing
-    protected static function boot()
-    {
-        parent::boot();
-        static::creating(function ($model) {
-            // if id exists
-            if ($model->where('id', $model->id)->exists()) {
-                return false;
-            }
-        });
     }
 }
