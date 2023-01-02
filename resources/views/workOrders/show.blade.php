@@ -6,7 +6,7 @@
     <h3>{{ $work_order->title }}</h3>
     客户: {{ $work_order->user->name }} 的工单
 
-    <h5>{{ \Illuminate\Mail\Markdown::parse($work_order->content) }}</h5>
+    <h5>@parsedown($work_order->content)</h5>
 
     <x-work-order-status :status="$work_order->status"></x-work-order-status>
 
