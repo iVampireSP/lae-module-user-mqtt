@@ -39,7 +39,7 @@
                     <span class="text-end">{{ $reply->created_at }}</span>
                 </div>
                 <div class="card-body">
-                    {{ \Illuminate\Mail\Markdown::parse($reply->content) }}
+                    @parsedown($reply->content)
                 </div>
             </div>
         @endforeach
